@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Ping-pong</title>
+    <style>
+        /* * {
+            outline: 1px solid red;
+        } */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 0px;
+            margin: 0px;
+            background: #ddd;
+        }
+        .container {
+            width: 500px;
+            margin: auto;
+        }
+        .helper {
+            text-align: center;
+        }
+        code {
+            display: inline-block;
+            padding: 4px;
+            margin: 5px;
+            background: rgba(0,0,0,0.4);
+            color: #fff;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>P-p-pong!</h2>
+        <canvas height="600" width="500" style="outline:2px solid #424242;"></canvas>
+        <p class="helper">
+            Press <code>a</code> to move left, <code>d</code> to move right.
+        </p>
+    </div>
+    <script src="jQuery.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            var ball = {
+                x: 250,
+                y: 300,
+                v_x: Math.random() * 10,
+                v_y: Math.random() * 12,
+                s_x: true,
+                s_y:true,
+                color: "#424242",
+                radius: 20
+            }
+            var bar = {
+                x: 250,
+                v_x: 10,
+                length: 100,
+                height: 20,
+                color: "#424242"
+            }
+
+            var bar_y = {
+                y: 250,
+                v_y: 10,
+                length: 100,
+                height: 20,
+                color: "#fff"
+            }
+            
+            var can = $("canvas").get(0);
+            var runner = {
+                redraw: function() {
+                    let c = can.getContext("2d");
+                    c.fillStyle = "#fff";
+                    c.clearRect(0,0,500,600);
+
+                    //drawing ball
+                    c.beginPath();
+                    c.fillStyle = ball.color;
+                    c.arc(ball.x, ball.y, ball.radius, 0, Math.PI*2, false); 
+                    c.closePath();
+                    c.fill();
+                    
+                    //drawing bar
+                    c.beginPath();
+                    c.fillStyle = bar.color;
+                    c.fillRect(bar.x-(bar.length/2), 600-bar.height, bar.length, bar.height);
+                    c.closePath();
+                    c.fill();
+
+                    c.beginPath();
+                    c.fillStyle = bar_y.color;
+                    c.fillRect(0, bar_y.y-(bar_y.length/2), bar_y.height, bar_y.length);
+                    c.closePath();
+                    c.fill();
+
+                    c.beginPath();
+                    c.fillStyle = bar_y.color;
+                    c.fillRect(500-bar.height, bar_y.y-(bar_y.length/2), bar_y.height, bar_y.length);
+                    c.closePath();
+                    c.fill();
+                },
+                calc: function() {
+                    if((ball.x <= ball.radius+bar_y.height || ball.x > 500-ball.radius - bar_y.height) && !ball.s_x) {
+                        ball.v_x *= -1;
+                        ball.s_x = true;
+                    } else {
+                        ball.s_x = false;
+                    }
+
+                    if((ball.y <= ball.radius || ball.y > 600-ball.radius-bar.height) && !ball.s_y) {
+                        ball.v_y *= -1;
+                        ball.s_y = true;
+                    } else {
+                        ball.s_y = false;
+                    }
+                    ball.x += ball.v_x;
+                    ball.y += ball.v_y;
+                    
+                    //autopilot
+                    bar.x = ball.x;
+                    bar_y.y = ball.y;
+                    
+                    //BAR BAWAH
+                    if(bar.x < bar.length/2) {
+                        bar.x = bar.length/2
+                    }
+                    if(bar.x > 500-bar.length/2) {
+                        bar.x = 500-bar.length/2;
+                    }
+
+                    //BAR KIRI
+                    if(bar_y.y < bar_y.length/2) {
+                        bar_y.y = bar.length/2
+                    }
+                    if(bar_y.y > 600-bar_y.length/2) {
+                        bar_y.y = 600-bar_y.length/2;
+                    }
+                    runner.redraw();
+                }
+            }
+            $(document).keypress(function(e){
+                if(e.keyCode == 97) {
+                    bar.x += -bar.v_x;
+                }
+                if(e.keyCode == 100) {
+                    bar.x += bar.v_x;
+                }
+            })
+            setInterval(runner.calc, 1000/50);
+        });
+    </script>
+</body>
+</html>
